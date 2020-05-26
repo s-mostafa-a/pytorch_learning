@@ -30,3 +30,19 @@ m.tensorAssertShape(z, old_shape)
 
 z.t_()
 m.tensorAssertShape(z, z_t.shape)
+
+#### resize
+x = torch.randn(4, 4)
+y = x.view(16)
+z = x.view(-1, 8)
+m.tensorAssertShape(x, (4, 4))
+m.tensorAssertShape(y, (16,))
+m.tensorAssertShape(z, (2, 8))
+
+################## numpy bridge
+b = a.numpy()
+c = torch.from_numpy(b)
+m.tensorAssertEqual(a, c)
+a.add_(1)
+m.tensorAssertEqual(a, c)
+# it shows that there is always a shallow copy on numpy bridges
