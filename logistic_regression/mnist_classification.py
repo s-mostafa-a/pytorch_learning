@@ -15,26 +15,32 @@ def split_train_and_test_indices(n, test_percentage):
     return per[number_of_tests:], per[:number_of_tests]
 
 
-dataset = MNIST(root='./data/', train=True, transform=transforms.ToTensor())
-test_dataset = MNIST(root='./data/', train=False)
-tensor_of_image, label = dataset[0]
-m = MyTorchTest()
-m.tensorAssertShape(tensor_of_image, (1, 28, 28))
-
-
 class LogisticRegressionModel(nn.Module):
-    def __init__(self, x: torch.Tensor, y: torch.Tensor, batch_size=100):
+    def __init__(self, train_dataset, test_dataset, batch_size=100):
         super().__init__()
-        in_features = x.size()[1] * x.size()[2]
-        out_features = len(y.unique())
+        in_features = train_dataset.data.size()[1] * train_dataset.data.size()[2]
+        out_features = len(train_dataset.targets.unique())
         self.linear = nn.Linear(in_features=in_features, out_features=out_features)
-        self.train_indices, self.test_indices = split_train_and_test_indices(len(dataset),
+        self.train_indices, self.test_indices = split_train_and_test_indices(len(train_dataset),
                                                                              test_percentage=0.2)
         self.batch_size = batch_size
+        self.dataset = train_dataset
+        self.test_dataset = test_dataset
+
+    def accuracy_on_test(self):
+        test_sampler = SubsetRandomSampler([i for i in range(len(self.test_dataset.targets))])
+        test_loader = DataLoader(self.test_dataset, self.batch_size, sampler=test_sampler)
+        all_trues = 0
+        for xb, yb in test_loader:
+            xb = xb.reshape(-1, self.linear.in_features)
+            outs = self.linear(xb)
+            _, preds = torch.max(outs, dim=1)
+            all_trues += torch.sum(preds == yb).item()
+        return all_trues / len(self.test_dataset.targets)
 
     def accuracy_on_train(self):
         test_sampler = SubsetRandomSampler(self.test_indices)
-        test_loader = DataLoader(dataset, self.batch_size, sampler=test_sampler)
+        test_loader = DataLoader(self.dataset, self.batch_size, sampler=test_sampler)
         all_trues = 0
         for xb, yb in test_loader:
             xb = xb.reshape(-1, self.linear.in_features)
@@ -46,8 +52,9 @@ class LogisticRegressionModel(nn.Module):
     def train(self, epochs=1, step=0.001):
         opt = torch.optim.SGD(self.parameters(), lr=step)
         for i in range(epochs):
+            print(f'epoch: {i}/{epochs}, accuracy on test: {self.accuracy_on_test()}')
             train_sampler = SubsetRandomSampler(self.train_indices)
-            train_loader = DataLoader(dataset, self.batch_size, sampler=train_sampler)
+            train_loader = DataLoader(self.dataset, self.batch_size, sampler=train_sampler)
             for xb, yb in train_loader:
                 xb = xb.reshape(-1, self.linear.in_features)
                 outs = self.linear(xb)
@@ -58,7 +65,11 @@ class LogisticRegressionModel(nn.Module):
                 opt.zero_grad()
 
 
-model = LogisticRegressionModel(dataset.data, dataset.targets)
-print(model.accuracy_on_train())
-model.train()
-print(model.accuracy_on_train())
+trains = MNIST(root='./data/', train=True, transform=transforms.ToTensor())
+tests = MNIST(root='./data/', train=False, transform=transforms.ToTensor())
+tensor_of_image, label = trains[0]
+m = MyTorchTest()
+m.tensorAssertShape(tensor_of_image, (1, 28, 28))
+
+model = LogisticRegressionModel(trains, tests)
+model.train(epochs=10)
