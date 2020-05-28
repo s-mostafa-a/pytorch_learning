@@ -79,7 +79,6 @@ v2 = torch.randn([1, 5])
 print(a2 * v2)
 print(a2 * a3)
 
-
 ##################
 # numpy bridge
 b = a.numpy()
@@ -98,6 +97,12 @@ m.tensorAssertEqual(a, c)
 # parameters of model
 # assume a model which inherits nn.module class. model.parameter shows all parameters that
 #   model has got (weights, biases, etc)  # noqa
+
+##################
+# more emphasis on reshape!
+complicated_matrx = torch.ones((12, 12, 100))
+simple_matrix = complicated_matrx.reshape([-1, 120])
+m.tensorAssertShape(simple_matrix, (120, 120))
 
 ##################
 # sampler and data loader
@@ -129,4 +134,3 @@ Ys = torch.tensor([[56, 70, 31],
                    [103, 119, 20]], dtype=torch.float32)
 dataset = TensorDataset(Xs, Ys)
 print(dataset[[1, 3]])
-
