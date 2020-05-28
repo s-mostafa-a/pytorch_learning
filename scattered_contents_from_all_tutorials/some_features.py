@@ -28,3 +28,6 @@ Ys = torch.tensor([[56, 70, 31],
                    [103, 119, 20]], dtype=torch.float32)
 dataset = TensorDataset(Xs, Ys)
 print(dataset[[1, 3]])
+
+################## pytorch and matplot differences
+# pytorch expects color channels to be first dimension of tensor. but matplot expects it to be the last one (or not being displayed at all) # noqa
