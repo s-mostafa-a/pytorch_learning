@@ -46,3 +46,9 @@ m.tensorAssertEqual(a, c)
 a.add_(1)
 m.tensorAssertEqual(a, c)
 # it shows that there is always a shallow copy on numpy bridges
+
+################## pytorch and matplot differences
+# pytorch expects color channels to be first dimension of tensor. but matplot expects it to be the last one (or not being displayed at all) # noqa
+
+################## parameters of model
+# assume a model which inherits nn.module class. model.parameter shows all parameters that model has got (weights, biases, etc)  # noqa
