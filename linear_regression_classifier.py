@@ -17,10 +17,20 @@ class SimpleRegressionClassifier:
         diff = (t1 - t2) ** 2
         return torch.sum(diff) / diff.numel()
 
-    def train(self, epochs=500, step=1e-5):
+    @staticmethod
+    def absolute(t1, t2):
+        diff = torch.abs(t1 - t2)
+        return torch.sum(diff) / diff.numel()
+
+    def train(self, epochs=500, step=1e-5, loss_func='mse'):
         for i in range(epochs):
             predictions = self.predict()
-            loss = self.mse(predictions, self.Ys)
+            if loss_func == 'mse':
+                loss = self.mse(predictions, self.Ys)
+            elif loss_func == 'abs':
+                loss = self.absolute(predictions, self.Ys)
+            else:
+                raise Exception('Not implemented such loss function')
             loss.backward()
             with torch.no_grad():
                 # gradient descent
@@ -36,13 +46,13 @@ Xs = np.array([[73, 67, 43, 12],
                [87, 134, 58, 10],
                [102, 43, 37, 42],
                [69, 96, 70, 91]], dtype='float32')
-Ys = np.array([[56, 70, 10],
-               [81, 101, 31],
+Ys = np.array([[56, 70, 31],
+               [81, 101, 10],
                [119, 133, 211],
                [22, 37, 49],
                [103, 119, 20]], dtype='float32')
 classifier = SimpleRegressionClassifier(x=Xs, y=Ys)
-classifier.train(epochs=100)
+classifier.train(epochs=10000)
 Y_tilde = classifier.predict()
 print('final loss:', classifier.mse(Y_tilde, classifier.Ys).item())
 print(Y_tilde)
