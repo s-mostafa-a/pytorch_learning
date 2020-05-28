@@ -1,5 +1,5 @@
 import torch
-from torch_test import MyTorchTest
+from small_unittest_for_torch import MyTorchTest
 
 m = MyTorchTest()
 x = torch.ones(2, 2, requires_grad=True)

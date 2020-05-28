@@ -1,5 +1,5 @@
 import torch
-from torch_test import MyTorchTest
+from small_unittest_for_torch import MyTorchTest
 
 ################## training how to initialize
 x = torch.tensor([5.5, 3])
