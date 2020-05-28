@@ -32,22 +32,18 @@ class LogisticRegressionModel(nn.Module):
                                                                              test_percentage=0.2)
         self.batch_size = batch_size
 
-    @staticmethod
-    def accuracy(t1: torch.Tensor, t2: torch.Tensor):
-        return torch.sum(t1 == t2).item() / len(t1)
-
     def accuracy_on_train(self):
         test_sampler = SubsetRandomSampler(self.test_indices)
         test_loader = DataLoader(dataset, self.batch_size, sampler=test_sampler)
         all_trues = 0
         for xb, yb in test_loader:
+            xb = xb.reshape(-1, self.linear.in_features)
             outs = self.linear(xb)
-            probs = F.softmax(outs, dim=1)
-            max_probs, preds = torch.max(probs, dim=1)
-            all_trues += torch.sum(preds == yb)
+            _, preds = torch.max(outs, dim=1)
+            all_trues += torch.sum(preds == yb).item()
         return all_trues / len(self.test_indices)
 
-    def train(self, epochs=500, step=1e-5):
+    def train(self, epochs=1, step=0.001):
         opt = torch.optim.SGD(self.parameters(), lr=step)
         for i in range(epochs):
             train_sampler = SubsetRandomSampler(self.train_indices)
@@ -62,4 +58,7 @@ class LogisticRegressionModel(nn.Module):
                 opt.zero_grad()
 
 
-# model = LogisticRegressionModel(tensor_of_image.size()[-1] ** 2, 10)
+model = LogisticRegressionModel(dataset.data, dataset.targets)
+print(model.accuracy_on_train())
+model.train()
+print(model.accuracy_on_train())
