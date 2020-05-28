@@ -2,7 +2,7 @@ import numpy as np
 import torch
 
 
-class SimpleRegressionClassifier:
+class RegressionClassifierWithoutNN:
     def __init__(self, x: np.ndarray, y: np.ndarray):
         self.Xs = torch.from_numpy(x)
         self.Ys = torch.from_numpy(y)
@@ -51,7 +51,7 @@ Ys = np.array([[56, 70, 31],
                [119, 133, 211],
                [22, 37, 49],
                [103, 119, 20]], dtype='float32')
-classifier = SimpleRegressionClassifier(x=Xs, y=Ys)
+classifier = RegressionClassifierWithoutNN(x=Xs, y=Ys)
 classifier.train(epochs=10000)
 Y_tilde = classifier.predict()
 print('final loss:', classifier.mse(Y_tilde, classifier.Ys).item())
