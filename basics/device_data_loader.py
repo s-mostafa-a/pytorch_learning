@@ -11,6 +11,7 @@ class DeviceDataLoader:
     for xb, yb in ddl:
         ...
     """
+
     def __init__(self, dl, device):
         self.dl = dl
         self.device = device
@@ -26,3 +27,5 @@ class DeviceDataLoader:
         if isinstance(data, (list, tuple)):
             return [self.to_device(x, device) for x in data]
         return data.to(device, non_blocking=True)
+# the reason why we dont have data collector (which collects from gpu) is because of
+# garbage collector
