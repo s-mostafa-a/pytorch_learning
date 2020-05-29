@@ -1,23 +1,11 @@
 import torch
-from torch import nn
 import numpy as np
+from torch.nn import functional as F
 from torch.utils.data.dataloader import DataLoader
 from torchvision.datasets import MNIST
 import torchvision.transforms as transforms
-import torch.nn.functional as F
 
-
-class DNNModel(nn.Module):
-    def __init__(self, in_features, hidden_features, out_features):
-        super().__init__()
-        self.hidden = nn.Linear(in_features=in_features, out_features=hidden_features)
-        self.output = nn.Linear(in_features=hidden_features, out_features=out_features)
-
-    def forward(self, xb):
-        xb = xb.view(xb.size(0), -1)
-        before_activation_func = self.hidden(xb)
-        after_activation_func = F.relu(before_activation_func)
-        return self.output(after_activation_func)
+from simple_deep_neural_net.dnn_model import DNNModel
 
 
 class MNISTModel:

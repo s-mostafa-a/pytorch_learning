@@ -1,9 +1,10 @@
 import torch
-from torch import nn
 from torch.utils.data.sampler import SubsetRandomSampler
 from torch.utils.data.dataloader import DataLoader
 from torchvision.datasets import MNIST
 import torchvision.transforms as transforms
+
+from simple_deep_neural_net.dnn_model import DNNModel
 from small_unittest_for_torch import MyTorchTest
 import torch.nn.functional as F
 
@@ -13,7 +14,8 @@ class LogisticRegressionModel:
         super().__init__()
         in_features = train_dataset.data.size()[1] * train_dataset.data.size()[2]
         out_features = len(train_dataset.targets.unique())
-        self.linear = nn.Linear(in_features=in_features, out_features=out_features)
+        self.linear = DNNModel(in_features=in_features, hidden_features=32,
+                               out_features=out_features)
         self.batch_size = batch_size
         self.train_dataset = train_dataset
         self.test_dataset = test_dataset
@@ -30,7 +32,7 @@ class LogisticRegressionModel:
                 all_trues += torch.sum(preds == yb).item()
         return all_trues / len(indices)
 
-    def train(self, epochs=1, step=0.001):
+    def train(self, epochs=1, step=0.5):
         opt = torch.optim.SGD(self.linear.parameters(), lr=step)
         for i in range(epochs):
             print(f'''epoch: {i}/{epochs}, accuracy on test: {self.accuracy(
