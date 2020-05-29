@@ -134,3 +134,20 @@ Ys = torch.tensor([[56, 70, 31],
                    [103, 119, 20]], dtype=torch.float32)
 dataset = TensorDataset(Xs, Ys)
 print(dataset[[1, 3]])
+
+##################
+# About relu
+# It brings non linearity to model and it is wonderful, because there would be a label which is
+# not sum of weighted inputs!
+
+##################
+# Pros of kernel in convolutional neural networks
+##
+# Fewer parameters: A small set of parameters (the kernel) is used to calculate outputs of the
+# entire image, so the model has much fewer parameters compared to a fully connected layer.
+##
+# Sparsity of connections: In each layer, each output element only depends on a small number of
+# input elements, which makes the forward and backward passes more efficient.
+##
+# Parameter sharing and spatial invariance: The features learned by a kernel in one part of the
+# image can be used to detect similar pattern in a different part of another image.
