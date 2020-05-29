@@ -1,10 +1,9 @@
 import torch
 from torch import nn
-from torch.utils.data.sampler import SubsetRandomSampler
+import numpy as np
 from torch.utils.data.dataloader import DataLoader
 from torchvision.datasets import MNIST
 import torchvision.transforms as transforms
-from small_unittest_for_torch import MyTorchTest
 import torch.nn.functional as F
 
 
@@ -33,14 +32,49 @@ class MNISTModel:
         self.train_dataloader = DataLoader(self.trains, batch_size)
         self.test_dataloader = DataLoader(self.tests, batch_size)
 
-    def loss_on_batch(self, loss_func, xb, yb, opt=None, metric=None):
-        predictions = self.model(xb)
-        loss = loss_func(predictions, yb)
+    def loss_on_batch(self, loss_func, xb, yb, opt=None):
+        probabilities = self.model(xb)
+        loss = loss_func(probabilities, yb)
         if opt is not None:
             loss.backward()
             opt.step()
             opt.zero_grad()
-        metric_result = None
-        if metric is not None:
-            metric_result = metric(predictions, yb)
+        _, predictions = torch.max(probabilities, dim=1)
+        metric_result = torch.sum(predictions == yb).item() / len(predictions)
         return loss.item(), len(xb), metric_result
+
+    def accuracy(self, loss_fn):
+        with torch.no_grad():
+            results = [self.loss_on_batch(loss_fn, xb, yb)
+                       for xb, yb in self.test_dataloader]
+            losses, nums, metrics = zip(*results)
+            total = np.sum(nums)
+            avg_loss = np.sum(np.multiply(losses, nums)) / total
+            avg_metric = np.sum(np.multiply(metrics, nums)) / total
+        return avg_loss, total, avg_metric
+
+    def fit(self, epochs=5, lr=0.5, loss_fn=F.cross_entropy, opt_fn=torch.optim.SGD):
+        losses, metrics = [], []
+        opt = opt_fn(self.model.parameters(), lr=lr)
+        result = self.accuracy(loss_fn)
+        loss_on_test, total, test_metric = result
+        print(
+            f'''Epoch [0/{epochs}], Loss: {loss_on_test}, accuracy percentage: {
+            test_metric}''')
+
+        for epoch in range(epochs):
+            for xb, yb in self.train_dataloader:
+                loss, _, _ = self.loss_on_batch(loss_fn, xb, yb, opt)
+
+            result = self.accuracy(loss_fn)
+            loss_on_test, total, test_metric = result
+            losses.append(loss_on_test)
+            metrics.append(test_metric)
+            print(
+                f'''Epoch [{epoch + 1}/{epochs}], Loss: {loss_on_test}, accuracy percentage: {
+                test_metric}''')
+        return losses, metrics
+
+
+mnist = MNISTModel()
+mnist.fit()
