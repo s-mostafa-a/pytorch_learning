@@ -12,5 +12,5 @@ class DNNModel(nn.Module):
     pass
 
 
-trains = MNIST(root='./data/', train=True, transform=transforms.ToTensor())
-tests = MNIST(root='./data/', train=False, transform=transforms.ToTensor())
+trains = MNIST(root='../data/', train=True, transform=transforms.ToTensor())
+tests = MNIST(root='../data/', train=False, transform=transforms.ToTensor())

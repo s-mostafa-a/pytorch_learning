@@ -48,8 +48,8 @@ class LogisticRegressionModel(nn.Module):
                 opt.zero_grad()
 
 
-trains = MNIST(root='./data/', train=True, transform=transforms.ToTensor())
-tests = MNIST(root='./data/', train=False, transform=transforms.ToTensor())
+trains = MNIST(root='../data/', train=True, transform=transforms.ToTensor())
+tests = MNIST(root='../data/', train=False, transform=transforms.ToTensor())
 tensor_of_image, label = trains[0]
 m = MyTorchTest()
 m.tensorAssertShape(tensor_of_image, (1, 28, 28))
