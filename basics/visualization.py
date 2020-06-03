@@ -3,7 +3,8 @@ from torchvision.datasets import CIFAR10
 from torch.utils.data import DataLoader
 from torchvision.utils import make_grid
 import matplotlib.pyplot as plt
-### simple composition of transforms
+##################
+# simple composition of transforms
 transforms = Compose([ToTensor(),
                       ToPILImage(),
                       Grayscale(),
