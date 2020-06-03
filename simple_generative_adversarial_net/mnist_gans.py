@@ -6,14 +6,32 @@ from torch.utils.data import DataLoader
 from torchvision.utils import save_image
 import os
 
-# This model does not use gpu and only works with cpu!
+
+class DeviceDataLoader:
+    def __init__(self, dl, device):
+        self.dl = dl
+        self.device = device
+
+    def __iter__(self):
+        for b in self.dl:
+            yield self.to_device(b, self.device)
+
+    def __len__(self):
+        return len(self.dl)
+
+    def to_device(self, data, device):
+        if isinstance(data, (list, tuple)):
+            return [self.to_device(x, device) for x in data]
+        return data.to(device, non_blocking=True)
 
 
 class MNIST_GANS:
-    def __init__(self, dataset, image_size, num_epochs=50, loss_function=nn.BCELoss(),
+    def __init__(self, dataset, image_size, device, num_epochs=50, loss_function=nn.BCELoss(),
                  batch_size=100,
                  hidden_size=2561, latent_size=64):
-        self.data_loader = DataLoader(dataset, batch_size, shuffle=True)
+        self.device = device
+        bare_data_loader = DataLoader(dataset, batch_size, shuffle=True)
+        self.data_loader = DeviceDataLoader(bare_data_loader, device)
         self.loss_function = loss_function
         self.hidden_size = hidden_size
         self.latent_size = latent_size
@@ -37,6 +55,8 @@ class MNIST_GANS:
         self.sample_dir = './../data/mnist_samples'
         if not os.path.exists(self.sample_dir):
             os.makedirs(self.sample_dir)
+        self.G.to(device)
+        self.D.to(device)
         self.sample_vectors = torch.randn(self.batch_size, self.latent_size).to(self.device)
         self.num_epochs = num_epochs
 
@@ -50,14 +70,14 @@ class MNIST_GANS:
         self.g_optimizer.zero_grad()
 
     def train_discriminator(self, images):
-        real_labels = torch.ones(self.batch_size, 1)
-        fake_labels = torch.zeros(self.batch_size, 1)
+        real_labels = torch.ones(self.batch_size, 1).to(self.device)
+        fake_labels = torch.zeros(self.batch_size, 1).to(self.device)
 
         outputs = self.D(images)
         d_loss_real = self.loss_function(outputs, real_labels)
         real_score = outputs
 
-        new_sample_vectors = torch.randn(self.batch_size, self.latent_size)
+        new_sample_vectors = torch.randn(self.batch_size, self.latent_size).to(self.device)
         fake_images = self.G(new_sample_vectors)
         outputs = self.D(fake_images)
         d_loss_fake = self.loss_function(outputs, fake_labels)
@@ -71,9 +91,9 @@ class MNIST_GANS:
         return d_loss, real_score, fake_score
 
     def train_generator(self):
-        new_sample_vectors = torch.randn(self.batch_size, self.latent_size)
+        new_sample_vectors = torch.randn(self.batch_size, self.latent_size).to(self.device)
         fake_images = self.G(new_sample_vectors)
-        labels = torch.ones(self.batch_size, 1)
+        labels = torch.ones(self.batch_size, 1).to(self.device)
         g_loss = self.loss_function(self.D(fake_images), labels)
 
         self.reset_grad()
@@ -111,7 +131,9 @@ class MNIST_GANS:
             self.save_fake_images(epoch + 1)
 
 
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 mnist = MNIST(root='./../data', train=True, download=True,
               transform=Compose([ToTensor(), Normalize(mean=(0.5,), std=(0.5,))]))
-gans = MNIST_GANS(dataset=mnist, image_size=mnist.data[0].flatten().size()[0])
+image_size = mnist.data[0].flatten().size()[0]
+gans = MNIST_GANS(dataset=mnist, image_size=image_size, device=device)
 gans.run()
