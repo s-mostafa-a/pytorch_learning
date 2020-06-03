@@ -1,6 +1,6 @@
 # Playing with PyTorch
 This repository is my playground for getting to know [PyTorch](https://pytorch.org/ "PyTorch") library of python.
-Mainly I've gone through PyTorch's [60 minutes blitz](https://pytorch.org/tutorials/beginner/deep_learning_60min_blitz.html "blitz") and [Aakash NS](https://www.youtube.com/watch?v=GIsg-ZUy0MY "Aakash NS")'s webinar.
+Mainly I've gone through PyTorch's [60 minutes blitz](https://pytorch.org/tutorials/beginner/deep_learning_60min_blitz.html "blitz") and [Aakash NS's webinar](https://www.youtube.com/watch?v=GIsg-ZUy0MY "webinar's video").
 To install all of your requirements, just run the command below in your terminal:
 <br>
 ``` pip install -r requirements.txt ```
