@@ -151,3 +151,7 @@ print(dataset[[1, 3]])
 ##
 # Parameter sharing and spatial invariance: The features learned by a kernel in one part of the
 # image can be used to detect similar pattern in a different part of another image.
+
+##################
+# Composition of transforms are available via torchvision.transforms.Compose
+# an example of its usage is in ./visualization.py
