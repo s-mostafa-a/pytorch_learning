@@ -26,4 +26,10 @@ Things implemented here are just like the above's, but instead of a linear model
 ### [simple_convolutional_neural_net](https://github.com/s-mostafa-a/pytorch_learning/tree/master/simple_convolutional_nerual_net)
 Here is also something like the simple deep neural network, two ways of implementation, which are logically the same. The difference between them with simple deep neural nets are just in the models.
 ### [simple_generative_adversarial_net](https://github.com/s-mostafa-a/pytorch_learning/tree/master/simple_generative_adversarial_net)
-This one is quite different from the above models. To be completed! (both implementation and documentation)
+This one is quite different from the above models. Two main files are [MNSIT_GANs](https://github.com/s-mostafa-a/pytorch_learning/blob/master/simple_generative_adversarial_net/MNIST_GANs.ipynb) and [CIFAR10_GANs](https://github.com/s-mostafa-a/pytorch_learning/blob/master/simple_generative_adversarial_net/CIFAR10_GANs.ipynb)
+which first one is inspired by Aakash's webinar (all parameters and models are the same as webinar's).
+In this model, generator tries to generate handwritten digits like MNIST data set. The progress of model is shown in this gif:
+![Alt Text](./mnist_gans_demo.gif)
+But at the second one I've tried (and am trying) to generate pictures like cifar10 dataset.
+At first I changed the pictures to gray-scale for convenience, them I tried some different parameters and functions, but there was not any significant results.
+In the future, I will continue to explore best architecture and parameters. If you think you have got any better solutions, please make a pull request. 

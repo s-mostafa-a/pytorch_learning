@@ -6,6 +6,8 @@ from torch.utils.data import DataLoader
 from torchvision.utils import save_image
 import os
 
+# This model does not use gpu and only works with cpu!
+
 
 class MNIST_GANS:
     def __init__(self, dataset, image_size, num_epochs=50, loss_function=nn.BCELoss(),
