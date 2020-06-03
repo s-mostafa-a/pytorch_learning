@@ -17,7 +17,7 @@ This directory has got all details I've extracted from tutorials. Especially in 
 ### [linear_regression](https://github.com/s-mostafa-a/pytorch_learning/tree/master/linear_regression)
 This one has got two files, which I've implemented linear regression with two approaches: [with](https://github.com/s-mostafa-a/pytorch_learning/blob/master/linear_regression/linear_regression_with_nn_package.py) and [without](https://github.com/s-mostafa-a/pytorch_learning/blob/master/linear_regression/linear_regression_without_nn_package.py) nn class of torch. 
 <br>
-Both are quit simple codes, but it was necessary for me to know what is going on inside the nn.Linear class. Also, the Dataset is a random matrix in which columns are some random features.
+Both are quite simple codes, but it was necessary for me to know what is going on inside the nn.Linear class. Also, the Dataset is a random matrix in which columns are some random features.
 ### [logistic_regression](https://github.com/s-mostafa-a/pytorch_learning/tree/master/logistic_regression)
 At this directory, I've written two classifications for the MNIST dataset. They do the same thing logically, but they are different in implementation.
 [The one with _not_best_practice](https://github.com/s-mostafa-a/pytorch_learning/blob/master/logistic_regression/mnist_classification_not_best_practice.py) ending is all written by myself, and [the other one](https://github.com/s-mostafa-a/pytorch_learning/blob/master/logistic_regression/mnist_classification_best_practice.py) is from Aakash's webinar with some modifications.
