@@ -8,10 +8,11 @@ import os
 
 
 class MNIST_GANS:
-    def __init__(self, dataset, image_size, criterion=nn.BCELoss(), batch_size=100,
+    def __init__(self, dataset, image_size, num_epochs=50, loss_function=nn.BCELoss(),
+                 batch_size=100,
                  hidden_size=2561, latent_size=64):
         self.data_loader = DataLoader(dataset, batch_size, shuffle=True)
-        self.criterion = criterion
+        self.loss_function = loss_function
         self.hidden_size = hidden_size
         self.latent_size = latent_size
         self.batch_size = batch_size
@@ -31,11 +32,11 @@ class MNIST_GANS:
             nn.Tanh())
         self.d_optimizer = torch.optim.Adam(self.D.parameters(), lr=0.0002)
         self.g_optimizer = torch.optim.Adam(self.G.parameters(), lr=0.0002)
-        self.sample_dir = '../data/samples'
+        self.sample_dir = './../data/mnist_samples'
         if not os.path.exists(self.sample_dir):
             os.makedirs(self.sample_dir)
-
-        self.sample_vectors = torch.randn(self.batch_size, self.latent_size)
+        self.sample_vectors = torch.randn(self.batch_size, self.latent_size).to(self.device)
+        self.num_epochs = num_epochs
 
     @staticmethod
     def denormalize(x):
@@ -51,13 +52,13 @@ class MNIST_GANS:
         fake_labels = torch.zeros(self.batch_size, 1)
 
         outputs = self.D(images)
-        d_loss_real = self.criterion(outputs, real_labels)
+        d_loss_real = self.loss_function(outputs, real_labels)
         real_score = outputs
 
-        z = torch.randn(self.batch_size, self.latent_size)
-        fake_images = self.G(z)
+        new_sample_vectors = torch.randn(self.batch_size, self.latent_size)
+        fake_images = self.G(new_sample_vectors)
         outputs = self.D(fake_images)
-        d_loss_fake = self.criterion(outputs, fake_labels)
+        d_loss_fake = self.loss_function(outputs, fake_labels)
         fake_score = outputs
 
         d_loss = d_loss_real + d_loss_fake
@@ -68,10 +69,10 @@ class MNIST_GANS:
         return d_loss, real_score, fake_score
 
     def train_generator(self):
-        z = torch.randn(self.batch_size, self.latent_size)
-        fake_images = self.G(z)
+        new_sample_vectors = torch.randn(self.batch_size, self.latent_size)
+        fake_images = self.G(new_sample_vectors)
         labels = torch.ones(self.batch_size, 1)
-        g_loss = self.criterion(self.D(fake_images), labels)
+        g_loss = self.loss_function(self.D(fake_images), labels)
 
         self.reset_grad()
         g_loss.backward()
@@ -87,30 +88,28 @@ class MNIST_GANS:
                    nrow=10)
 
     def run(self):
-        num_epochs = 5
         total_step = len(self.data_loader)
         d_losses, g_losses, real_scores, fake_scores = [], [], [], []
 
-        for epoch in range(num_epochs):
+        for epoch in range(self.num_epochs):
             for i, (images, _) in enumerate(self.data_loader):
                 images = images.reshape(self.batch_size, -1)
 
                 d_loss, real_score, fake_score = self.train_discriminator(images)
                 g_loss, fake_images = self.train_generator()
 
-                if (i + 1) % 200 == 0:
+                if (i + 1) % 600 == 0:
                     d_losses.append(d_loss.item())
                     g_losses.append(g_loss.item())
                     real_scores.append(real_score.mean().item())
                     fake_scores.append(fake_score.mean().item())
-                    print(f'''Epoch [{epoch}/{num_epochs}], Step [{i + 1}/{
+                    print(f'''Epoch [{epoch}/{self.num_epochs}], Step [{i + 1}/{
                     total_step}], d_loss: {d_loss.item():.4f}, g_loss: {g_loss.item():.4f}, D(x): {
                     real_score.mean().item():.2f}, D(G(z)): {fake_score.mean().item():.2f}''')
             self.save_fake_images(epoch + 1)
 
 
-image_size = 784
-mnist = MNIST(root='../data', train=True,
+mnist = MNIST(root='./../data', train=True, download=True,
               transform=Compose([ToTensor(), Normalize(mean=(0.5,), std=(0.5,))]))
-gans = MNIST_GANS(dataset=mnist, image_size=image_size)
+gans = MNIST_GANS(dataset=mnist, image_size=mnist.data[0].flatten().size()[0])
 gans.run()
